@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geretrix | Questionário Seletivo de Leads</title>
+    <style>
+	@font-face {
+    		font-family: 'Plus Jakarta Sans';
+    		font-style: normal;
+    		font-weight: 300 800;
+    		font-display: swap;
+    		src: url('./fonts/PlusJakartaSans-Variable.woff2') format('woff2-variations'),
+         	     url('./fonts/PlusJakartaSans-Variable.woff2') format('woff2');
+	}
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.2);
+            --secondary: #6366f1;
+            --danger: #ef4444;
+            --text-main: #f3f4f6;
+            --text-dim: #9ca3af;
+            --border: #1f2937;
+            --accent-gradient: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 0 2rem; }
+        .section-padding { padding: 8rem 0 6rem 0; }
+        
+        /* --- BACKGROUND --- */
+        .glow-blob { position: fixed; width: 600px; height: 600px; background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%); z-index: -1; filter: blur(100px); opacity: 0.2; }
+        .blob-1 { top: -200px; left: -200px; }
+        .blob-2 { bottom: -200px; right: -200px; background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%); }
+
+        /* --- UI COMPONENTS --- */
+        .btn { display: inline-block; padding: 1.1rem 2.2rem; border-radius: 14px; font-weight: 700; text-decoration: none; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); cursor: pointer; border: none; font-size: 1rem; text-align: center; width: 100%; }
+        .btn-primary { background: var(--accent-gradient); color: white; box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.3); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.5); }
+        .btn-secondary { background: rgba(255,255,255,0.03); border: 1px solid var(--border); color: var(--text-main); }
+        .btn-secondary:hover { background: var(--border); transform: translateY(-2px); }
+
+        .badge { background: var(--primary-glow); color: var(--primary); padding: 0.5rem 1.2rem; border-radius: 99px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; border: 1px solid rgba(16, 185, 129, 0.2); display: inline-block; margin-bottom: 2rem; }
+
+        h1 { font-size: 3rem; font-weight: 800; color: #fff; line-height: 1.1; margin-bottom: 1.5rem; letter-spacing: -1.5px; text-align: center; }
+        h2 { font-size: 2.2rem; font-weight: 700; color: #fff; margin-bottom: 1rem; letter-spacing: -0.5px; text-align: center; }
+        span.gradient-text { background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* --- NAVBAR --- */
+        nav { 
+            padding: 2rem 0; 
+            position: fixed; 
+            width: 100%; 
+            top: 0; 
+            z-index: 100; 
+            transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out, padding 0.3s ease-in-out;
+            background-color: transparent;
+        }
+        nav.sticky {
+            background-color: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.6rem; font-weight: 800; letter-spacing: -1.5px; color: #fff; text-decoration: none; }
+        .logo span { color: var(--primary); }
+
+        /* --- REVEAL ON SCROLL --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            will-change: opacity, transform;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- QUESTIONNAIRE CARD & STYLES --- */
+        .questionnaire-wrapper {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 3.5rem 3rem;
+            margin-top: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .question-block {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .question-block:last-of-type {
+            border-bottom: none;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+        .question-number {
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 0.8rem;
+        }
+        .options-grid.cols-2 {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+        .option-label:hover {
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.03);
+        }
+        .option-label input[type="radio"],
+        .option-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .input-group {
+            margin-top: 1rem;
+        }
+        .input-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.6rem;
+        }
+        .input-group input, 
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            background: #0b0f19;
+            border: 1px solid var(--border);
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.3s;
+        }
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            border-color: var(--primary);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+        }
+        @media (max-width: 768px) {
+            .contact-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2.2rem; }
+            .questionnaire-wrapper { padding: 2rem 1.5rem; }
+        }
+
+        /* Success Screen */
+        .success-card {
+            display: none;
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--primary);
+            border-radius: 28px;
+            box-shadow: 0 20px 50px rgba(16, 185, 129, 0.15);
+            margin-top: 2rem;
+        }
+        .success-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        footer { padding: 4rem 0; text-align: center; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <div class="glow-blob blob-1"></div>
+    <div class="glow-blob blob-2"></div>
+
+    <nav>
+        <div class="container nav-content">
+            <a href="index_v2.2.html" class="logo">GERE<span>TRIX</span></a>
+            <a href="index_v2.2.html" class="btn btn-secondary" style="padding: 0.7rem 1.5rem; font-size: 0.85rem; width: auto;">Voltar ao Início</a>
+        </div>
+    </nav>
+
+    <!-- HEADER -->
+    <header class="section-padding">
+        <div class="container">
+            <div style="text-align: center;">
+                <span class="badge">Diagnóstico & Qualificação</span>
+                <h1>Questionário Seletivo de Leads<br><span class="gradient-text">Playbook Geretrix</span></h1>
+                <p style="color: var(--text-dim); font-size: 1.15rem; max-width: 700px; margin: 0 auto;">Responda às questões abaixo para alinharmos o ecossistema financeiro ideal para a sua empresa e receber o nosso Playbook explicativo diretamente no seu e-mail.</p>
+            </div>
+
+            <!-- QUESTIONNAIRE FORM -->
+            <div class="questionnaire-wrapper reveal">
+                <form id="lead-questionnaire-form">
+                    
+                    <!-- Pergunta 1 -->
+                    <div class="question-block">
+                        <div class="question-title">
+                            <span class="question-number">01.</span>
+                            <span>Tamanho da empresa</span>
+                        </div>
+                        <div class="options-grid cols-2">
+                            <label class="option-label">
+                                <input type="radio" name="Tamanho_Empresa" value="Solo Founder" required>
+                                <span>Solo Founder</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Tamanho_Empresa" value="Microempresa">
+                                <span>Microempresa</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Tamanho_Empresa" value="PME">
+                                <span>PME (Pequena e Média Empresa)</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Tamanho_Empresa" value="Grande empresa">
+                                <span>Grande empresa</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Pergunta 2 -->
+                    <div class="question-block">
+                        <div class="question-title">
+                            <span class="question-number">02.</span>
+                            <span>Público-alvo da empresa</span>
+                        </div>
+                        <div class="options-grid cols-2">
+                            <label class="option-label">
+                                <input type="radio" name="Publico_Alvo" value="Consumidor final (B2C)" required>
+                                <span>Consumidor final (B2C)</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Publico_Alvo" value="Outras empresas (B2B)">
+                                <span>Outras empresas (B2B)</span>
+                            </label>
+                            <label class="option-label" style="grid-column: 1 / -1;">
+                                <input type="radio" name="Publico_Alvo" value="Misto">
+                                <span>Misto (B2B & B2C)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Pergunta 3 -->
+                    <div class="question-block">
+                        <div class="question-title">
+                            <span class="question-number">03.</span>
+                            <span>Idade da empresa</span>
+                        </div>
+                        <div class="options-grid cols-2">
+                            <label class="option-label">
+                                <input type="radio" name="Idade_Empresa" value="0-1 anos" required>
+                                <span>0-1 anos</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Idade_Empresa" value="1-3 anos">
+                                <span>1-3 anos</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Idade_Empresa" value="3-5 anos">
+                                <span>3-5 anos</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Idade_Empresa" value="5-10 anos">
+                                <span>5-10 anos</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Idade_Empresa" value=">10 anos">
+                                <span>&gt;10 anos</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Idade_Empresa" value="Ainda não foi fundada">
+                                <span>Ainda não foi fundada</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Pergunta 4 -->
+                    <div class="question-block">
+                        <div class="question-title">
+                            <span class="question-number">04.</span>
+                            <span>Situação da empresa</span>
+                        </div>
+                        <div class="options-grid cols-2">
+                            <label class="option-label">
+                                <input type="radio" name="Situacao_Empresa" value="Fase de criação/validação do projeto" required>
+                                <span>Fase de criação / validação do projeto</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Situacao_Empresa" value="Fase de validação de um MVP (startup)">
+                                <span>Fase de validação de um MVP (startup)</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Situacao_Empresa" value="Início/arranque de vendas">
+                                <span>Início / arranque de vendas</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Situacao_Empresa" value="Fase de crescimento acentuado">
+                                <span>Fase de crescimento acentuado</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Situacao_Empresa" value="Fase de estabilidade/consolidação">
+                                <span>Fase de estabilidade / consolidação</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Situacao_Empresa" value="Fase de declínio">
+                                <span>Fase de declínio</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Pergunta 5 -->
+                    <div class="question-block">
+                        <div class="question-title">
+                            <span class="question-number">05.</span>
+                            <span>Maiores problemas financeiros (Selecione uma ou mais opções)</span>
+                        </div>
+                        <div class="options-grid">
+                            <label class="option-label">
+                                <input type="checkbox" name="Problemas_Financeiros" value="Imprevisibilidade financeira">
+                                <span>Imprevisibilidade financeira</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="checkbox" name="Problemas_Financeiros" value="Congestão de tesouraria (mesmo havendo lucros)">
+                                <span>Congestão de tesouraria (mesmo havendo lucros)</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="checkbox" name="Problemas_Financeiros" value="Atrasos de pagamentos de clientes afetam a estabilidade">
+                                <span>Atrasos de pagamentos de clientes afetam a estabilidade da empresa</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="checkbox" name="Problemas_Financeiros" value="Muitas horas perdidas a cruzar faturas com transações bancárias">
+                                <span>Muitas horas perdidas a cruzar faturas com transações bancárias</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="checkbox" name="Problemas_Financeiros" value="Desorganização do ambiente de trabalho (muitos softwares diferentes)">
+                                <span>Desorganização do ambiente de trabalho (muitos softwares diferentes com diferentes métodos de funcionamento)</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="checkbox" name="Problemas_Financeiros" value="Faturas guardadas em lugares diferentes e faturas perdidas">
+                                <span>Faturas guardadas em lugares diferentes e faturas perdidas</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="checkbox" name="Problemas_Financeiros" value="Prazo Médio de Pagamento superior ao Prazo Médio de Recebimento">
+                                <span>Prazo Médio de Pagamento superior ao Prazo Médio de Recebimento</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="checkbox" name="Problemas_Financeiros" value="Ciclo de Conversão de Caixa Alto">
+                                <span>Ciclo de Conversão de Caixa Alto</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="checkbox" name="Problemas_Financeiros" value="Falta de liquidez imediata em emergências ou para fornecedores">
+                                <span>Falta de liquidez imediata em emergências ou para pagar a fornecedores</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="checkbox" name="Problemas_Financeiros" value="Gestão financeira feita por departamento sem acesso imediato ao sócio">
+                                <span>A gestão financeira é feita pelo departamento financeiro e eu (sócio) não tenho acesso imediato à situação financeira atual da minha empresa se assim pretender</span>
+                            </label>
+                        </div>
+                        <div class="input-group" style="margin-top: 1rem;">
+                            <label>Outros motivos (Especificar)</label>
+                            <textarea name="Outros_Problemas_Financeiros" rows="3" placeholder="Descreva outro motivo financeiro, se aplicável..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Pergunta 6 -->
+                    <div class="question-block">
+                        <div class="question-title">
+                            <span class="question-number">06.</span>
+                            <span>Software de faturação da empresa</span>
+                        </div>
+                        <div class="options-grid cols-2">
+                            <label class="option-label">
+                                <input type="radio" name="Software_Faturacao" value="PHC" required>
+                                <span>PHC</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Software_Faturacao" value="Moloni">
+                                <span>Moloni</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Software_Faturacao" value="Primavera">
+                                <span>Primavera</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Software_Faturacao" value="InvoiceXpress">
+                                <span>InvoiceXpress</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Software_Faturacao" value="Toqueonline">
+                                <span>Toqueonline</span>
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="Software_Faturacao" value="Outro">
+                                <span>Outro / Personalizado</span>
+                            </label>
+                        </div>
+                        <div class="input-group" style="margin-top: 1rem;">
+                            <label>Nome do Outro Software (se aplicável)</label>
+                            <input type="text" name="Outro_Software" placeholder="Ex: Keyinvoice, Vendus, Sage...">
+                        </div>
+                    </div>
+
+                    <!-- Pergunta 7 -->
+                    <div class="question-block">
+                        <div class="question-title">
+                            <span class="question-number">07.</span>
+                            <span>Banco principal de operações</span>
+                        </div>
+                        <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1rem;">Banco em que recebe o dinheiro que a sua empresa realizou.</p>
+                        <div class="input-group">
+                            <label>Selecione ou Pesquise o seu Banco</label>
+                            <input type="text" name="Banco_Principal" list="bancos-portugal" placeholder="Comece a escrever ou selecione o banco..." required>
+                            <datalist id="bancos-portugal">
+                                <option value="Caixa Geral de Depósitos (CGD)">
+                                <option value="Millennium BCP">
+                                <option value="Novo Banco">
+                                <option value="Banco Santander Totta">
+                                <option value="Banco BPI">
+                                <option value="Montepio Geral">
+                                <option value="Crédito Agrícola">
+                                <option value="Bankinter Portugal">
+                                <option value="ActivoBank">
+                                <option value="EuroBic / Abanca">
+                                <option value="Banco CTT">
+                                <option value="Revolut Business">
+                                <option value="Qonto">
+                                <option value="Wise Business">
+                                <option value="Banco Carregosa">
+                                <option value="Banco Best">
+                                <option value="Outro Banco">
+                            </datalist>
+                        </div>
+                    </div>
+
+                    <!-- Pergunta 8: Contactos -->
+                    <div class="question-block">
+                        <div class="question-title">
+                            <span class="question-number">08.</span>
+                            <span>Dados para envio do Playbook & Contacto</span>
+                        </div>
+                        <div class="contact-grid" style="margin-bottom: 1.5rem;">
+                            <div class="input-group" style="margin-top:0;">
+                                <label>Nome Completo (Primeiro e Último)</label>
+                                <input type="text" name="Nome" placeholder="Ex: João Silva" required>
+                            </div>
+                            <div class="input-group" style="margin-top:0;">
+                                <label>Nome da Empresa</label>
+                                <input type="text" name="Empresa" placeholder="Ex: Minha Empresa Lda" required>
+                            </div>
+                        </div>
+                        <div class="input-group" style="margin-top:0;">
+                            <label>E-mail de Preferência (Para receção do Playbook Geretrix)</label>
+                            <input type="email" name="Email" placeholder="exemplo@empresa.pt" required>
+                        </div>
+
+                        <!-- Consentimento RGPD -->
+                        <div style="margin-top: 1.5rem;">
+                            <label style="display: flex; align-items: flex-start; gap: 0.75rem; text-align: left; font-size: 0.85rem; color: var(--text-dim); cursor: pointer; line-height: 1.4;">
+                                <input type="checkbox" name="Consentimento_RGPD" value="Aceite" required style="width: 18px; height: 18px; padding: 0; margin-top: 2px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer;">
+                                <span>Li e aceito a <a href="https://joao-monteiro-7.github.io/politica-privacidade-geretrix/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: underline;">Política de Privacidade</a> e autorizo o tratamento dos meus dados para envio do Playbook Geretrix e contacto associado.</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Submeter Questionário & Receber Playbook</button>
+                </form>
+            </div>
+
+            <!-- SUCCESS CARD (Hidden initially) -->
+            <div id="success-message" class="success-card">
+                <div class="success-icon">✓</div>
+                <h2>Questionário Submetido com Sucesso!</h2>
+                <p style="color: var(--text-dim); font-size: 1.1rem; max-width: 600px; margin: 1rem auto 2rem auto;">
+                    Muito obrigado pelas suas respostas. O <strong>Playbook Geretrix</strong> (com a explicação detalhada de funcionamento do software e as últimas configurações necessárias) já está a caminho do seu e-mail.
+                </p>
+                <a href="index_v2.2.html" class="btn btn-primary" style="display: inline-block; width: auto; padding: 1rem 2.5rem;">Voltar à Página Principal</a>
+            </div>
+
+        </div>
+    </header>
+
+    <footer>
+        <div class="container">
+            <div class="logo" style="margin-bottom: 2rem;">GERE<span>TRIX</span></div>
+            <p>&copy; 2026 Geretrix. Todos os direitos reservados. Gestão Financeira para Empreendedores.</p>
+            <div style="margin-top: 1rem;">
+                <a href="https://joao-monteiro-7.github.io/termos-utilizacao-geretrix/" style="color: var(--text-dim); text-decoration: underline; margin: 0 10px;">Termos de Utilização</a>
+                <a href="https://joao-monteiro-7.github.io/politica-privacidade-geretrix/" style="color: var(--text-dim); text-decoration: underline; margin: 0 10px;">Política de Privacidade</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- SMART STICKY HEADER ---
+        const navbar = document.querySelector('nav');
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > 50) {
+                navbar.classList.add('sticky');
+            } else {
+                navbar.classList.remove('sticky');
+            }
+        });
+
+        // --- REVEAL ON SCROLL ---
+        const revealElements = document.querySelectorAll('.reveal');
+        if ('IntersectionObserver' in window) {
+            const revealObserver = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+            revealElements.forEach(function(element) {
+                revealObserver.observe(element);
+            });
+        } else {
+            revealElements.forEach(function(element) {
+                element.classList.add('active');
+            });
+        }
+
+        // --- FORM SUBMISSION (FormSubmit AJAX) ---
+        const questionnaireForm = document.getElementById('lead-questionnaire-form');
+        const successMessage = document.getElementById('success-message');
+
+        if (questionnaireForm) {
+            questionnaireForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const submitBtn = questionnaireForm.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn ? submitBtn.innerText : "Submeter Questionário & Receber Playbook";
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = "A processar submissão...";
+                }
+
+                // Coletar todos os dados do formulário
+                const formData = new FormData(questionnaireForm);
+                const data = {};
+                
+                // Tratar múltiplos checkboxes (Problemas Financeiros)
+                const problemasList = [];
+                formData.getAll('Problemas_Financeiros').forEach(val => problemasList.push(val));
+                
+                formData.forEach((value, key) => {
+                    if (key !== 'Problemas_Financeiros') {
+                        data[key] = value;
+                    }
+                });
+                if (problemasList.length > 0) {
+                    data['Problemas_Financeiros'] = problemasList.join(' | ');
+                }
+
+                // Configurações do FormSubmit
+                data['_subject'] = 'Novo Lead Qualificado (Questionário) - Geretrix';
+                data['_captcha'] = 'false';
+
+                fetch('https://formsubmit.co/069cb224e08201e5b3f33b0a5281f7ba', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Erro no envio');
+                    }
+                })
+                .then(resData => {
+                    // Esconder o formulário e mostrar o cartão de sucesso com o mesmo estilo
+                    questionnaireForm.style.display = 'none';
+                    successMessage.style.display = 'block';
+                    window.scrollTo({ top: 200, behavior: 'smooth' });
+                })
+                .catch(error => {
+                    console.error('Error submitting form:', error);
+                    alert('Ocorreu um erro ao submeter o seu questionário. Por favor, tente novamente.');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = originalBtnText;
+                    }
+                });
+            });
+        }
+    });
+    </script>
+</body>
+</html>
